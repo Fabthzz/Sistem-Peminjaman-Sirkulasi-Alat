@@ -1,6 +1,6 @@
 <mxfile host="app.diagrams.net" agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36" version="29.3.8">
   <diagram name="Page-1" id="NDFwLNjqVRCtf34ocUSC">
-    <mxGraphModel dx="1099" dy="529" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
+    <mxGraphModel dx="890" dy="430" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
       <root>
         <mxCell id="0" />
         <mxCell id="1" parent="0" />
@@ -145,14 +145,17 @@
         <mxCell id="lp-MyzFjM7l9EwdHDOdt-1" parent="1" style="text;whiteSpace=wrap;html=1;" value="*id_peminjaman" vertex="1">
           <mxGeometry height="40" width="95" x="237" y="114.82" as="geometry" />
         </mxCell>
-        <mxCell id="lp-MyzFjM7l9EwdHDOdt-2" parent="1" style="text;whiteSpace=wrap;html=1;" value="*id_alat" vertex="1">
-          <mxGeometry height="30" width="47" x="160" y="221.58" as="geometry" />
+        <mxCell id="lp-MyzFjM7l9EwdHDOdt-2" parent="1" style="text;whiteSpace=wrap;html=1;" value="*id_alat&lt;br&gt;*id_detail_peminjaman" vertex="1">
+          <mxGeometry height="38.42" width="130" x="160" y="221.58" as="geometry" />
         </mxCell>
-        <mxCell id="lp-MyzFjM7l9EwdHDOdt-3" parent="1" style="text;whiteSpace=wrap;html=1;" value="*id_peminjaman" vertex="1">
+        <mxCell id="lp-MyzFjM7l9EwdHDOdt-3" parent="1" style="text;whiteSpace=wrap;html=1;" value="*id_peminjaman&lt;div&gt;*id_denda&lt;/div&gt;" vertex="1">
           <mxGeometry height="40" width="95" x="482" y="219.88" as="geometry" />
         </mxCell>
-        <mxCell id="lp-MyzFjM7l9EwdHDOdt-4" parent="1" style="text;whiteSpace=wrap;html=1;" value="*id_user" vertex="1">
-          <mxGeometry height="40" width="60" x="557" y="112.29" as="geometry" />
+        <mxCell id="lp-MyzFjM7l9EwdHDOdt-4" parent="1" style="text;whiteSpace=wrap;html=1;" value="*id_user&lt;div&gt;*id_peminjaman&lt;/div&gt;" vertex="1">
+          <mxGeometry height="40" width="92" x="558" y="112.29" as="geometry" />
+        </mxCell>
+        <mxCell id="E0yXKL0XVWfwH7kN4lIE-1" parent="1" style="text;whiteSpace=wrap;html=1;" value="*id_detail_peminjaman" vertex="1">
+          <mxGeometry height="40" width="50" x="237" y="128.29" as="geometry" />
         </mxCell>
       </root>
     </mxGraphModel>
