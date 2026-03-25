@@ -47,17 +47,14 @@ class AuthController extends Controller
             'jurusan' => 'required|string',
         ]);
 
-        $mahasiswa = Mahasiswa::where('nama', $request->nama)
-            ->where('jurusan', $request->jurusan)
-            ->first();
-
-        if (!$mahasiswa) {
-            return back()->withErrors(['nama' => 'Nama atau jurusan tidak ditemukan.'])->withInput();
-        }
+         $mahasiswa = Mahasiswa::firstOrCreate([
+            'nama'    => $request->nama,
+            'jurusan' => $request->jurusan,
+        ]);
 
         // Simpan ke session
         session([
-            'mahasiswa_id'      => $mahasiswa->id,
+            'mahasiswa_id'      => $mahasiswa->id,  
             'mahasiswa_nama'    => $mahasiswa->nama,
             'mahasiswa_jurusan' => $mahasiswa->jurusan,
         ]);
