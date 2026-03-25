@@ -8,6 +8,10 @@
 <div class="card-spsa">
     <div class="card-header-spsa">
         <h5><i class="bi bi-card-checklist me-2" style="color:var(--orange)"></i> Daftar Persetujuan Peminjaman</h5>
+        <a href="{{ route('admin.laporan.cetak') }}" target="_blank"
+            style="background:#1e293b; color:white; border:none; padding:8px 16px; border-radius:8px; font-size:13px; font-weight:600; cursor:pointer; font-family:inherit; display:inline-flex; align-items:center; gap:6px; text-decoration:none;">
+            <i class="bi bi-printer-fill"></i> Cetak Laporan
+        </a>
     </div>
 
     <div class="table-responsive">

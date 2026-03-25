@@ -25,10 +25,7 @@ class AdminController extends Controller
     /* ── ALAT ── */
     public function alatIndex()
     {
-        $alat = Alat::all()->map(function ($item) {
-            $item->sisa_stok = $item->stok - $item->dipinjam;
-            return $item;
-        });
+        $alat = Alat::all();
         return view('admin.alat.index', compact('alat'));
     }
 
@@ -123,10 +120,79 @@ class AdminController extends Controller
         return back()->with('success', $msg);
     }
 
+    /* ── LAPORAN ── */
+    public function cetakLaporan(Request $request)
+    {
+        $query = Peminjaman::with(['mahasiswa', 'details.alat']);
+
+        if ($request->dari) {
+            $query->whereDate('tanggal_pinjam', '>=', $request->dari);
+        }
+        if ($request->sampai) {
+            $query->whereDate('tanggal_pinjam', '<=', $request->sampai);
+        }
+        if ($request->status) {
+            $query->where('status', $request->status);
+        }
+
+        $peminjaman        = $query->latest()->get();
+        $total             = $peminjaman->count();
+        $totalMenunggu     = $peminjaman->where('status', 'menunggu')->count();
+        $totalDisetujui    = $peminjaman->where('status', 'disetujui')->count();
+        $totalDikembalikan = $peminjaman->where('status', 'dikembalikan')->count();
+        $totalDenda        = $peminjaman->sum('denda');
+
+        $dari   = $request->dari;
+        $sampai = $request->sampai;
+        $status = $request->status;
+
+        return view('admin.laporan.cetak', compact(
+            'peminjaman', 'total', 'totalMenunggu',
+            'totalDisetujui', 'totalDikembalikan', 'totalDenda',
+            'dari', 'sampai', 'status'
+        ));
+    }
+
     /* ── MAHASISWA ── */
     public function mahasiswaIndex()
     {
         $mahasiswa = Mahasiswa::all();
         return view('admin.mahasiswa.index', compact('mahasiswa'));
+    }
+
+    public function mahasiswaStore(Request $request)
+    {
+        $request->validate([
+            'nama'    => 'required|string|max:255',
+            'jurusan' => 'required|string|max:255',
+        ]);
+
+        Mahasiswa::create([
+            'nama'    => $request->nama,
+            'jurusan' => $request->jurusan,
+        ]);
+
+        return back()->with('success', 'Mahasiswa berhasil ditambahkan!');
+    }
+
+    public function mahasiswaUpdate(Request $request, $id)
+    {
+        $request->validate([
+            'nama'    => 'required|string|max:255',
+            'jurusan' => 'required|string|max:255',
+        ]);
+
+        Mahasiswa::findOrFail($id)->update([
+            'nama'    => $request->nama,
+            'jurusan' => $request->jurusan,
+        ]);
+
+        return back()->with('success', 'Data mahasiswa berhasil diperbarui!');
+    }
+
+    public function mahasiswaDestroy($id)
+    {
+        Mahasiswa::findOrFail($id)->delete();
+        return back()->with('success', 'Mahasiswa berhasil dihapus!');
     }
 }
