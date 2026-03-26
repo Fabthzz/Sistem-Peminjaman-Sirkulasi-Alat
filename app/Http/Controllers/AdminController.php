@@ -14,11 +14,10 @@ class AdminController extends Controller
         $totalAlat      = Alat::count();
         $totalMenunggu  = Peminjaman::where('status', 'menunggu')->count();
         $totalDisetujui = Peminjaman::where('status', 'disetujui')->count();
-        $totalMahasiswa = Mahasiswa::count();
         $peminjaman     = Peminjaman::with(['mahasiswa', 'details.alat'])->latest()->take(10)->get();
 
         return view('admin.dashboard', compact(
-            'totalAlat', 'totalMenunggu', 'totalDisetujui', 'totalMahasiswa', 'peminjaman'
+            'totalAlat', 'totalMenunggu', 'totalDisetujui', 'peminjaman'
         ));
     }
 

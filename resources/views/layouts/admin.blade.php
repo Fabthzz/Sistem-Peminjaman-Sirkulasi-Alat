@@ -71,9 +71,10 @@
         }
 
         .brand-name {
-            font-size: 18px;
-            font-weight: 800;
+            font-size: 13px;
+            font-weight: 700;
             color: white;
+            line-height: 1.4;
         }
 
         .brand-sub {
@@ -362,9 +363,10 @@
 
     <div class="sidebar" id="sidebar">
         <div class="sidebar-brand">
-            <div class="brand-icon"><i class="bi bi-display"></i></div>
+            <img src="{{ asset('image/icons.png') }}" alt="SPSA Logo"
+                style="width:38px; height:38px; object-fit:contain; flex-shrink:0;">
             <div>
-                <div class="brand-name">SPSA</div>
+                <div class="brand-name">Sistem Peminjaman<br>&amp; Sirkulasi Alat</div>
                 <div class="brand-sub">Admin Panel</div>
             </div>
         </div>
@@ -384,11 +386,6 @@
             <div class="nav-item">
                 <a href="{{ route('admin.peminjaman.index') }}" class="{{ request()->routeIs('admin.peminjaman.*') ? 'active' : '' }}">
                     <i class="bi bi-card-checklist"></i> Persetujuan Alat
-                </a>
-            </div>
-            <div class="nav-item">
-                <a href="{{ route('admin.mahasiswa.index') }}" class="{{ request()->routeIs('admin.mahasiswa.*') ? 'active' : '' }}">
-                    <i class="bi bi-people-fill"></i> Data Mahasiswa
                 </a>
             </div>
         </nav>

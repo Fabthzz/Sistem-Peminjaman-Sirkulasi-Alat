@@ -6,7 +6,7 @@
 @section('content')
 
 <div class="row g-3 mb-4">
-    <div class="col-md-3">
+    <div class="col-md-4">
         <div class="stat-card">
             <div class="stat-icon" style="background:#fff3e8; color:#F07B1D;"><i class="bi bi-tools"></i></div>
             <div>
@@ -15,7 +15,7 @@
             </div>
         </div>
     </div>
-    <div class="col-md-3">
+    <div class="col-md-4">
         <div class="stat-card">
             <div class="stat-icon" style="background:#fef9c3; color:#854d0e;"><i class="bi bi-hourglass-split"></i></div>
             <div>
@@ -24,21 +24,12 @@
             </div>
         </div>
     </div>
-    <div class="col-md-3">
+    <div class="col-md-4">
         <div class="stat-card">
             <div class="stat-icon" style="background:#dcfce7; color:#16a34a;"><i class="bi bi-check-circle-fill"></i></div>
             <div>
                 <div class="stat-label">Disetujui</div>
                 <div class="stat-value">{{ $totalDisetujui }}</div>
-            </div>
-        </div>
-    </div>
-    <div class="col-md-3">
-        <div class="stat-card">
-            <div class="stat-icon" style="background:#ede9fe; color:#7c3aed;"><i class="bi bi-people-fill"></i></div>
-            <div>
-                <div class="stat-label">Total Mahasiswa</div>
-                <div class="stat-value">{{ $totalMahasiswa }}</div>
             </div>
         </div>
     </div>

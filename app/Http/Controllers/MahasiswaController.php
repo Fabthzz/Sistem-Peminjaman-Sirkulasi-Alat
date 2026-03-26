@@ -31,7 +31,10 @@ class MahasiswaController extends Controller
 
     public function tambahKeranjang(Request $request)
     {
-        $request->validate(['alat_id' => 'required|exists:alat,id']);
+        $request->validate([
+            'alat_id' => 'required|exists:alat,id',
+            'jumlah'  => 'required|integer|min:1',
+        ]);
 
         $alat     = Alat::findOrFail($request->alat_id);
         $sisaStok = max(0, $alat->stok - $alat->dipinjam);
@@ -40,23 +43,34 @@ class MahasiswaController extends Controller
             return back()->with('error', 'Stok alat sudah habis!');
         }
 
+        if ($request->jumlah > $sisaStok) {
+            return back()->with('error', "Jumlah melebihi sisa stok ($sisaStok tersedia)!");
+        }
+
         $cart = session('cart', []);
 
-        foreach ($cart as $item) {
+        // Kalau sudah ada di keranjang, update jumlahnya
+        foreach ($cart as $key => $item) {
             if ($item['alat_id'] == $request->alat_id) {
-                return back()->with('error', 'Alat sudah ada di keranjang!');
+                $totalJumlah = $item['jumlah'] + $request->jumlah;
+                if ($totalJumlah > $sisaStok) {
+                    return back()->with('error', "Total jumlah melebihi sisa stok ($sisaStok tersedia)!");
+                }
+                $cart[$key]['jumlah'] = $totalJumlah;
+                session(['cart' => $cart]);
+                return back()->with('success', $alat->nama_alat . ' diperbarui di keranjang (total: ' . $totalJumlah . ')');
             }
         }
 
         $cart[] = [
             'alat_id'   => $alat->id,
             'nama_alat' => $alat->nama_alat,
-            'jumlah'    => 1,
+            'jumlah'    => $request->jumlah,
         ];
 
         session(['cart' => $cart]);
 
-        return back()->with('success', $alat->nama_alat . ' berhasil ditambahkan ke keranjang!');
+        return back()->with('success', $alat->nama_alat . ' (' . $request->jumlah . ') berhasil ditambahkan ke keranjang!');
     }
 
     public function hapusKeranjang(Request $request)

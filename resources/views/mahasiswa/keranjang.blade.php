@@ -7,7 +7,7 @@
 
 <div class="card-spsa">
     <div class="card-header-spsa">
-        <h5><i class="bi bi-basket2-fill me-2" style="color:var(--orange)"></i> Keranjang Peminjaman</h5>
+        <h5><i class="bi bi-archive-fill me-2" style="color:var(--orange)"></i> Keranjang Peminjaman</h5>
         <a href="{{ route('mahasiswa.dashboard') }}" class="btn btn-sm btn-outline-secondary" style="font-size:13px; border-radius:8px;">
             <i class="bi bi-arrow-left"></i> Kembali
         </a>
@@ -15,7 +15,7 @@
 
     @if(empty($cart))
         <div style="text-align:center; padding:60px; color:var(--muted);">
-            <i class="bi bi-basket2" style="font-size:48px; display:block; margin-bottom:12px; color:#ddd;"></i>
+            <i class="bi bi-cart-x-fill" style="font-size:48px; display:block; margin-bottom:12px; color:#ddd;"></i>
             <div style="font-weight:600; font-size:15px; margin-bottom:6px;">Keranjang Kosong</div>
             <div style="font-size:13px;">Silakan pilih alat yang ingin dipinjam dari Dashboard.</div>
             <a href="{{ route('mahasiswa.dashboard') }}" class="badge-pinjam mt-3" style="display:inline-flex;">

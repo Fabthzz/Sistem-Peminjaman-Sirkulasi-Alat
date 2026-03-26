@@ -47,7 +47,7 @@
     <div class="card-header-spsa">
         <h5><i class="bi bi-grid-3x3-gap-fill me-2" style="color:var(--orange)"></i> Daftar Alat</h5>
         <a href="{{ route('mahasiswa.keranjang') }}" class="badge-keranjang">
-            <i class="bi bi-basket2-fill"></i> Keranjang
+             <i class="bi bi-cart-check-fill"></i> Keranjang
             @php $cartCount = session('cart') ? count(session('cart')) : 0; @endphp
             @if($cartCount > 0)
                 <span class="ms-1">({{ $cartCount }})</span>
@@ -85,9 +85,12 @@
                         <td>{{ $item->dipinjam }}</td>
                         <td>
                             @if($tersedia)
-                                <form action="{{ route('mahasiswa.keranjang.tambah') }}" method="POST" style="display:inline">
+                                <form action="{{ route('mahasiswa.keranjang.tambah') }}" method="POST" style="display:flex; align-items:center; gap:6px;">
                                     @csrf
                                     <input type="hidden" name="alat_id" value="{{ $item->id }}">
+                                    <input type="number" name="jumlah" value="1" min="1" max="{{ $sisaStok }}"
+                                           style="width:60px; border:1.5px solid #e2e8f0; border-radius:6px; padding:5px 8px; font-size:13px; font-family:inherit; text-align:center; outline:none;"
+                                           onfocus="this.style.borderColor='#22c55e'" onblur="this.style.borderColor='#e2e8f0'">
                                     <button type="submit" class="badge-pinjam">
                                         <i class="bi bi-cart-plus-fill"></i> Pinjam
                                     </button>
