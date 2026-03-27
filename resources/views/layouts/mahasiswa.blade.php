@@ -440,6 +440,11 @@
                 transform: translateX(-100%);
             }
 
+            .sidebar.open {
+                transform: translateX(0);
+                box-shadow: 4px 0 20px rgba(0, 0, 0, 0.15);
+            }
+
             .main-content {
                 margin-left: 0;
             }
