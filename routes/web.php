@@ -17,7 +17,7 @@ Route::controller(AuthController::class)->group(function () {
 
 // ── MAHASISWA ──
 Route::prefix('mahasiswa')
-    ->middleware(['auth', 'role:mahasiswa'])
+    ->middleware(['auth'])
     ->controller(MahasiswaController::class)
     ->group(function () {
 

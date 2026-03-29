@@ -394,11 +394,17 @@
                 </a>
             </div>
             <div class="nav-item">
-                 <a href="{{ route('admin.list') }}" class="{{ request()->routeIs('admin.laporan.*') ? 'active' : '' }}">
+                <a href="{{ route('admin.list') }}" class="{{ request()->routeIs('admin.laporan.*') ? 'active' : '' }}">
                     <i class="bi bi-shield-lock"></i>
                     <span>Data Admin</span>
                 </a>
-            </li>
+            </div>
+            <div class="nav-item">
+                <a href="{{ route('mahasiswa.dashboard') }}" class="{{ request()->routeIs('mahasiswa.dashboard') ? 'active' : '' }}">
+                    <i class="bi bi-cart"></i>
+                    <span>Pinjam Alat</span>
+                </a>
+            </div>
         </nav>
 
         <div class="sidebar-footer">

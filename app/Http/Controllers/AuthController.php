@@ -7,12 +7,13 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 
+
 class AuthController extends Controller
 {
     public function showLogin()
     {
         if (Auth::check()) {
-            return Auth::user()->isAdmin()
+            return $User()->isAdmin()
                 ? redirect()->route('admin.dashboard')
                 : redirect()->route('mahasiswa.dashboard');
         }

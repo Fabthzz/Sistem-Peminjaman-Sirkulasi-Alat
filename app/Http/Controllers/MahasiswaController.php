@@ -105,12 +105,12 @@ class MahasiswaController extends Controller
         if (empty($cart)) {
             return back()->with('error', 'Keranjang kosong!');
         }
-
+        $status = Auth::user()->isAdmin() ? 'disetujui' : 'menunggu';
         $peminjaman = Peminjaman::create([
-            'user_id'          => Auth::id(), // 🔥 FIX DI SINI
+            'user_id'          => Auth::id(), 
             'tanggal_pinjam'   => $request->tanggal_pinjam,
             'tanggal_kembali'  => $request->tanggal_kembali,
-            'status'           => 'menunggu',
+            'status'           => $status,
             'denda'            => 0,
         ]);
 
