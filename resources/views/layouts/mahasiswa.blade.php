@@ -567,9 +567,9 @@
                 </a>
                 <div class="user-info">
                     <div class="user-avatar"><i class="bi bi-person-fill"></i></div>
-                    <div class="user-name">{{ session('mahasiswa_nama', 'Pengguna') }}</div>
+                    <div class="user-name">{{ Auth::user()->nama }}</div>
                 </div>
-                <span class="badge-jurusan">{{ session('mahasiswa_jurusan', '-') }}</span>
+                <span class="badge-jurusan">Mahasiswa</span>
             </div>
         </div>
 

@@ -7,7 +7,10 @@
 
 <div class="card-spsa">
     <div class="card-header-spsa">
-        <h5><i class="bi bi-archive-fill me-2" style="color:var(--orange)"></i> Keranjang Peminjaman</h5>
+        <h5>
+            <i class="bi bi-archive-fill me-2" style="color:var(--orange)"></i> 
+            Keranjang Peminjaman
+        </h5>
         <a href="{{ route('mahasiswa.dashboard') }}" class="btn btn-sm btn-outline-secondary" style="font-size:13px; border-radius:8px;">
             <i class="bi bi-arrow-left"></i> Kembali
         </a>
@@ -23,6 +26,7 @@
             </a>
         </div>
     @else
+
         <div class="table-responsive">
             <table class="table-spsa">
                 <thead>
@@ -43,7 +47,7 @@
                                 <form action="{{ route('mahasiswa.keranjang.hapus') }}" method="POST" style="display:inline">
                                     @csrf
                                     <input type="hidden" name="alat_id" value="{{ $item['alat_id'] }}">
-                                    <button type="submit" style="background:#fee2e2; color:#ef4444; border:none; padding:5px 12px; border-radius:6px; font-size:12px; font-weight:600; cursor:pointer; font-family:inherit;">
+                                    <button type="submit" style="background:#fee2e2; color:#ef4444; border:none; padding:5px 12px; border-radius:6px; font-size:12px; font-weight:600; cursor:pointer;">
                                         <i class="bi bi-trash3"></i> Hapus
                                     </button>
                                 </form>
@@ -59,27 +63,42 @@
             <form action="{{ route('mahasiswa.pinjam.submit') }}" method="POST">
                 @csrf
                 <div class="row g-3 align-items-end">
+
+                    {{-- TANGGAL PINJAM --}}
                     <div class="col-md-5">
-                        <label style="font-size:13px; font-weight:600; display:block; margin-bottom:6px;">
+                        <label style="font-size:13px; font-weight:600; margin-bottom:6px;">
                             Tanggal Pinjam
                         </label>
-                        <input type="date" name="tanggal_pinjam" class="form-control" required
+                        <input type="date"
+                               name="tanggal_pinjam"
+                               class="form-control"
+                               required
                                value="{{ date('Y-m-d') }}"
+                               min="{{ date('Y-m-d') }}"
                                style="border-radius:8px; font-size:14px;">
                     </div>
+
+                    {{-- TANGGAL KEMBALI --}}
                     <div class="col-md-5">
-                        <label style="font-size:13px; font-weight:600; display:block; margin-bottom:6px;">
+                        <label style="font-size:13px; font-weight:600; margin-bottom:6px;">
                             Tanggal Kembali
                         </label>
-                        <input type="date" name="tanggal_kembali" class="form-control" required
+                        <input type="date"
+                               name="tanggal_kembali"
+                               class="form-control"
+                               required
+                               min="{{ date('Y-m-d') }}"
                                style="border-radius:8px; font-size:14px;">
                     </div>
+
+                    {{-- BUTTON --}}
                     <div class="col-md-2">
                         <button type="submit" class="badge-keranjang w-100"
-                                style="padding:10px 14px; border-radius:8px; font-size:13px; justify-content:center;">
+                                style="padding:10px 14px; border-radius:8px; font-size:13px;">
                             <i class="bi bi-send-check-fill"></i> Ajukan
                         </button>
                     </div>
+
                 </div>
             </form>
         </div>

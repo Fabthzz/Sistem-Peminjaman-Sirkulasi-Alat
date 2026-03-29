@@ -3,10 +3,10 @@
 namespace App\Http\Controllers;
 
 use App\Models\Alat;
-use App\Models\Mahasiswa;
 use App\Models\Peminjaman;
 use App\Models\PeminjamanDetail;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class MahasiswaController extends Controller
 {
@@ -14,13 +14,19 @@ class MahasiswaController extends Controller
     {
         $alat = Alat::all();
 
-        $totalTersedia     = $alat->filter(fn($i) => ($i->stok - $i->dipinjam) > 0)->count();
-        $totalHabis        = $alat->filter(fn($i) => ($i->stok - $i->dipinjam) <= 0)->count();
-        $totalDipinjamUser = Peminjaman::where('mahasiswa_id', session('mahasiswa_id'))
+        $totalTersedia = $alat->filter(fn($i) => ($i->stok - $i->dipinjam) > 0)->count();
+        $totalHabis    = $alat->filter(fn($i) => ($i->stok - $i->dipinjam) <= 0)->count();
+
+        $totalDipinjamUser = Peminjaman::where('user_id', Auth::id())
             ->whereIn('status', ['menunggu', 'disetujui'])
             ->count();
 
-        return view('mahasiswa.dashboard', compact('alat', 'totalTersedia', 'totalHabis', 'totalDipinjamUser'));
+        return view('mahasiswa.dashboard', compact(
+            'alat',
+            'totalTersedia',
+            'totalHabis',
+            'totalDipinjamUser'
+        ));
     }
 
     public function keranjang()
@@ -49,16 +55,18 @@ class MahasiswaController extends Controller
 
         $cart = session('cart', []);
 
-        // Kalau sudah ada di keranjang, update jumlahnya
         foreach ($cart as $key => $item) {
             if ($item['alat_id'] == $request->alat_id) {
                 $totalJumlah = $item['jumlah'] + $request->jumlah;
+
                 if ($totalJumlah > $sisaStok) {
                     return back()->with('error', "Total jumlah melebihi sisa stok ($sisaStok tersedia)!");
                 }
+
                 $cart[$key]['jumlah'] = $totalJumlah;
                 session(['cart' => $cart]);
-                return back()->with('success', $alat->nama_alat . ' diperbarui di keranjang (total: ' . $totalJumlah . ')');
+
+                return back()->with('success', $alat->nama_alat . ' diperbarui (total: ' . $totalJumlah . ')');
             }
         }
 
@@ -70,7 +78,7 @@ class MahasiswaController extends Controller
 
         session(['cart' => $cart]);
 
-        return back()->with('success', $alat->nama_alat . ' (' . $request->jumlah . ') berhasil ditambahkan ke keranjang!');
+        return back()->with('success', $alat->nama_alat . ' berhasil ditambahkan!');
     }
 
     public function hapusKeranjang(Request $request)
@@ -79,16 +87,17 @@ class MahasiswaController extends Controller
 
         $cart = session('cart', []);
         $cart = array_values(array_filter($cart, fn($item) => $item['alat_id'] != $request->alat_id));
+
         session(['cart' => $cart]);
 
-        return back()->with('success', 'Alat berhasil dihapus dari keranjang.');
+        return back()->with('success', 'Alat dihapus dari keranjang.');
     }
 
     public function submitPinjam(Request $request)
     {
         $request->validate([
-            'tanggal_pinjam'  => 'required|date|after_or_equal:today',
-            'tanggal_kembali' => 'required|date|after:tanggal_pinjam',
+            'tanggal_pinjam'   => 'required|date|after_or_equal:today',
+            'tanggal_kembali'  => 'required|date|after_or_equal:tanggal_pinjam',
         ]);
 
         $cart = session('cart', []);
@@ -98,11 +107,11 @@ class MahasiswaController extends Controller
         }
 
         $peminjaman = Peminjaman::create([
-            'mahasiswa_id'    => session('mahasiswa_id'),
-            'tanggal_pinjam'  => $request->tanggal_pinjam,
-            'tanggal_kembali' => $request->tanggal_kembali,
-            'status'          => 'menunggu',
-            'denda'           => 0,
+            'user_id'          => Auth::id(), // 🔥 FIX DI SINI
+            'tanggal_pinjam'   => $request->tanggal_pinjam,
+            'tanggal_kembali'  => $request->tanggal_kembali,
+            'status'           => 'menunggu',
+            'denda'            => 0,
         ]);
 
         foreach ($cart as $item) {
@@ -118,13 +127,13 @@ class MahasiswaController extends Controller
         session()->forget('cart');
 
         return redirect()->route('mahasiswa.riwayat')
-            ->with('success', 'Peminjaman berhasil diajukan! Menunggu persetujuan admin.');
+            ->with('success', 'Peminjaman berhasil diajukan!');
     }
 
     public function riwayat()
     {
         $peminjaman = Peminjaman::with(['details.alat'])
-            ->where('mahasiswa_id', session('mahasiswa_id'))
+            ->where('user_id', Auth::id()) // 🔥 FIX DI SINI
             ->latest()
             ->get();
 

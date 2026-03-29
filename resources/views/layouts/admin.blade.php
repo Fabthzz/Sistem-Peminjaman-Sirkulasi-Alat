@@ -388,6 +388,17 @@
                     <i class="bi bi-card-checklist"></i> Persetujuan Alat
                 </a>
             </div>
+            <div class="nav-item">
+                <a href="{{ route('admin.mahasiswa.index') }}" class="{{ request()->routeIs('admin.mahasiswa.*') ? 'active' : '' }}">
+                    <i class="bi bi-people"></i> Data Mahasiswa
+                </a>
+            </div>
+            <div class="nav-item">
+                 <a href="{{ route('admin.list') }}" class="{{ request()->routeIs('admin.laporan.*') ? 'active' : '' }}">
+                    <i class="bi bi-shield-lock"></i>
+                    <span>Data Admin</span>
+                </a>
+            </li>
         </nav>
 
         <div class="sidebar-footer">

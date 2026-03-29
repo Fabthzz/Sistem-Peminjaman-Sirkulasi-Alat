@@ -8,11 +8,21 @@ return new class extends Migration
 {
     public function up(): void
     {
-        Schema::create('peminjamandetail', function (Blueprint $table) {
+        Schema::create('peminjaman_detail', function (Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger('peminjaman_id');
-            $table->unsignedBigInteger('alat_id');
+
+            $table->foreignId('peminjaman_id')
+                ->references('id')
+                ->on('peminjaman')
+                ->onDelete('cascade');
+
+            $table->foreignId('alat_id')
+                ->references('id')
+                ->on('alat')
+                ->onDelete('cascade');
+
             $table->integer('jumlah')->default(1);
+
             $table->timestamps();
         });
     }

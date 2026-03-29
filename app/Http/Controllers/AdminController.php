@@ -3,9 +3,10 @@
 namespace App\Http\Controllers;
 
 use App\Models\Alat;
-use App\Models\Mahasiswa;
+use App\Models\User;
 use App\Models\Peminjaman;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Hash;
 
 class AdminController extends Controller
 {
@@ -14,10 +15,15 @@ class AdminController extends Controller
         $totalAlat      = Alat::count();
         $totalMenunggu  = Peminjaman::where('status', 'menunggu')->count();
         $totalDisetujui = Peminjaman::where('status', 'disetujui')->count();
-        $peminjaman     = Peminjaman::with(['mahasiswa', 'details.alat'])->latest()->take(10)->get();
+
+        $peminjaman = Peminjaman::with(['user', 'details.alat'])
+            ->latest()->take(10)->get();
 
         return view('admin.dashboard', compact(
-            'totalAlat', 'totalMenunggu', 'totalDisetujui', 'peminjaman'
+            'totalAlat',
+            'totalMenunggu',
+            'totalDisetujui',
+            'peminjaman'
         ));
     }
 
@@ -47,17 +53,20 @@ class AdminController extends Controller
     public function alatUpdate(Request $request, $id)
     {
         $request->validate([
-            'nama_alat' => 'required|string|max:255',
-            'stok'      => 'required|integer|min:1',
+            'stok' => 'required|integer|min:0'
         ]);
 
         $alat = Alat::findOrFail($id);
+
+        if ($request->stok < $alat->dipinjam) {
+            return back()->with('error', 'Stok tidak boleh lebih kecil dari yang sedang dipinjam!');
+        }
+
         $alat->update([
-            'nama_alat' => $request->nama_alat,
-            'stok'      => $request->stok,
+            'stok' => $request->stok
         ]);
 
-        return back()->with('success', 'Alat berhasil diperbarui!');
+        return back()->with('success', 'Stok berhasil diupdate');
     }
 
     public function alatDestroy($id)
@@ -69,7 +78,9 @@ class AdminController extends Controller
     /* ── PEMINJAMAN ── */
     public function peminjamanIndex()
     {
-        $peminjaman = Peminjaman::with(['mahasiswa', 'details.alat'])->latest()->get();
+        $peminjaman = Peminjaman::with(['user', 'details.alat'])
+            ->latest()->paginate(10);
+
         return view('admin.peminjaman.index', compact('peminjaman'));
     }
 
@@ -77,19 +88,21 @@ class AdminController extends Controller
     {
         $peminjaman = Peminjaman::findOrFail($id);
         $peminjaman->update(['status' => 'disetujui']);
-        return back()->with('success', 'Peminjaman berhasil disetujui!');
+
+        return back()->with('success', 'Peminjaman disetujui!');
     }
 
     public function peminjamanTolak($id)
     {
         $peminjaman = Peminjaman::findOrFail($id);
 
-        // Kembalikan stok
         foreach ($peminjaman->details as $detail) {
-            Alat::where('id', $detail->alat_id)->decrement('dipinjam', $detail->jumlah);
+            Alat::where('id', $detail->alat_id)
+                ->decrement('dipinjam', $detail->jumlah);
         }
 
         $peminjaman->update(['status' => 'ditolak']);
+
         return back()->with('success', 'Peminjaman ditolak.');
     }
 
@@ -101,9 +114,9 @@ class AdminController extends Controller
 
         $peminjaman = Peminjaman::findOrFail($id);
 
-        // Kembalikan stok
         foreach ($peminjaman->details as $detail) {
-            Alat::where('id', $detail->alat_id)->decrement('dipinjam', $detail->jumlah);
+            Alat::where('id', $detail->alat_id)
+                ->decrement('dipinjam', $detail->jumlah);
         }
 
         $peminjaman->update([
@@ -111,87 +124,150 @@ class AdminController extends Controller
             'denda'  => $request->denda,
         ]);
 
-        $msg = 'Alat berhasil dikembalikan.';
-        if ($request->denda > 0) {
-            $msg .= ' Denda: Rp ' . number_format($request->denda, 0, ',', '.');
-        }
-
-        return back()->with('success', $msg);
+        return back()->with('success', 'Pengembalian berhasil.');
     }
 
     /* ── LAPORAN ── */
     public function cetakLaporan(Request $request)
     {
-        $query = Peminjaman::with(['mahasiswa', 'details.alat']);
+        $query = \App\Models\Peminjaman::with(['user', 'details.alat']);
 
+        // 🔍 FILTER TANGGAL
         if ($request->dari) {
             $query->whereDate('tanggal_pinjam', '>=', $request->dari);
         }
+
         if ($request->sampai) {
             $query->whereDate('tanggal_pinjam', '<=', $request->sampai);
         }
+
         if ($request->status) {
             $query->where('status', $request->status);
         }
 
-        $peminjaman        = $query->latest()->get();
-        $total             = $peminjaman->count();
-        $totalMenunggu     = $peminjaman->where('status', 'menunggu')->count();
-        $totalDisetujui    = $peminjaman->where('status', 'disetujui')->count();
+        $peminjaman = $query->latest()->get();
+
+        $total = $peminjaman->count();
+        $totalMenunggu = $peminjaman->where('status', 'menunggu')->count();
+        $totalDisetujui = $peminjaman->where('status', 'disetujui')->count();
         $totalDikembalikan = $peminjaman->where('status', 'dikembalikan')->count();
-        $totalDenda        = $peminjaman->sum('denda');
+        $totalDenda = $peminjaman->sum('denda');
 
-        $dari   = $request->dari;
-        $sampai = $request->sampai;
-        $status = $request->status;
+        return view('admin.laporan.cetak', [
+            'peminjaman' => $peminjaman,
 
-        return view('admin.laporan.cetak', compact(
-            'peminjaman', 'total', 'totalMenunggu',
-            'totalDisetujui', 'totalDikembalikan', 'totalDenda',
-            'dari', 'sampai', 'status'
-        ));
+            // 🔥 INI BIAR GA ERROR
+            'dari' => $request->dari,
+            'sampai' => $request->sampai,
+            'status' => $request->status,
+
+            // 🔥 SUMMARY
+            'total' => $total,
+            'totalMenunggu' => $totalMenunggu,
+            'totalDisetujui' => $totalDisetujui,
+            'totalDikembalikan' => $totalDikembalikan,
+            'totalDenda' => $totalDenda,
+        ]);
     }
 
-    /* ── MAHASISWA ── */
-    public function mahasiswaIndex()
+    /* ── USER (ADMIN) ── */
+    public function adminIndex(Request $request)
     {
-        $mahasiswa = Mahasiswa::all();
+        $query = \App\Models\User::where('role', 'admin');
+
+        // 🔍 SEARCH
+        if ($request->search) {
+            $query->where(function ($q) use ($request) {
+                $q->where('nama', 'like', '%' . $request->search . '%')
+                    ->orWhere('nim', 'like', '%' . $request->search . '%');
+            });
+        }
+
+        $admins = $query->latest()->paginate(10);
+        $admins->appends($request->all());
+
+        return view('admin.admin.index', compact('admins'));
+    }
+
+    public function adminStore(Request $request)
+    {
+        $request->validate([
+            'nama' => 'required',
+            'nim' => 'required|unique:users,nim',
+            'password' => 'required|min:6',
+        ]);
+
+        User::create([
+            'nama' => $request->nama,
+            'nim' => $request->nim,
+            'password' => Hash::make($request->password),
+            'role' => 'admin',
+        ]);
+
+        return back()->with('success', 'Admin berhasil ditambahkan');
+    }
+
+    public function adminDestroy($id)
+    {
+        User::destroy($id);
+        return back()->with('success', 'Admin dihapus');
+    }
+
+    /* ── USER (MAHASISWA) ── */
+    public function mahasiswaIndex(Request $request)
+    {
+        $query = \App\Models\User::where('role', 'mahasiswa');
+
+        if ($request->search) {
+            $query->where(function ($q) use ($request) {
+                $q->where('nama', 'like', '%' . $request->search . '%')
+                    ->orWhere('nim', 'like', '%' . $request->search . '%');
+            });
+        }
+
+        $mahasiswa = $query->latest()->paginate(10);
+
+        $mahasiswa->appends($request->all());
+
         return view('admin.mahasiswa.index', compact('mahasiswa'));
     }
 
     public function mahasiswaStore(Request $request)
     {
         $request->validate([
-            'nama'    => 'required|string|max:255',
-            'jurusan' => 'required|string|max:255',
+            'nama'     => 'required|string|max:255',
+            'nim'      => 'required|digits_between:10,15|unique:users,nim',
+            'password' => 'required|min:6',
         ]);
 
-        Mahasiswa::create([
-            'nama'    => $request->nama,
-            'jurusan' => $request->jurusan,
+        User::create([
+            'nama'     => $request->nama,
+            'nim'      => $request->nim,
+            'password' => bcrypt($request->password),
+            'role'     => 'mahasiswa',
         ]);
 
-        return back()->with('success', 'Mahasiswa berhasil ditambahkan!');
+        return back()->with('success', 'User berhasil ditambahkan!');
     }
 
     public function mahasiswaUpdate(Request $request, $id)
     {
+        $user = User::findOrFail($id);
+
         $request->validate([
-            'nama'    => 'required|string|max:255',
-            'jurusan' => 'required|string|max:255',
+            'nama' => 'required|string|max:255',
         ]);
 
-        Mahasiswa::findOrFail($id)->update([
-            'nama'    => $request->nama,
-            'jurusan' => $request->jurusan,
+        $user->update([
+            'nama' => $request->nama,
         ]);
 
-        return back()->with('success', 'Data mahasiswa berhasil diperbarui!');
+        return back()->with('success', 'User diperbarui!');
     }
 
     public function mahasiswaDestroy($id)
     {
-        Mahasiswa::findOrFail($id)->delete();
-        return back()->with('success', 'Mahasiswa berhasil dihapus!');
+        User::findOrFail($id)->delete();
+        return back()->with('success', 'User dihapus!');
     }
 }

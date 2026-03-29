@@ -5,47 +5,66 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\MahasiswaController;
 use App\Http\Controllers\AdminController;
 
-// Redirect root ke login
+// redirect awal
 Route::get('/', fn() => redirect()->route('login'));
 
 // ── AUTH ──
-Route::get('/login',   [AuthController::class, 'showLogin'])->name('login');
-Route::post('/login/admin',  [AuthController::class, 'loginAdmin'])->name('login.admin');
-Route::post('/login/mahasiswa', [AuthController::class, 'loginMahasiswa'])->name('login.mahasiswa');
-Route::post('/logout',  [AuthController::class, 'logout'])->name('logout');
-
-// ── MAHASISWA (session-based) ──
-Route::prefix('mahasiswa')->middleware('mahasiswa')->group(function () {
-    Route::get('/dashboard',  [MahasiswaController::class, 'dashboard'])->name('mahasiswa.dashboard');
-    Route::get('/keranjang',    [MahasiswaController::class, 'keranjang'])->name('mahasiswa.keranjang');
-    Route::post('/keranjang/tambah', [MahasiswaController::class, 'tambahKeranjang'])->name('mahasiswa.keranjang.tambah');
-    Route::post('/keranjang/hapus', [MahasiswaController::class, 'hapusKeranjang'])->name('mahasiswa.keranjang.hapus');
-    Route::post('/pinjam/submit',  [MahasiswaController::class, 'submitPinjam'])->name('mahasiswa.pinjam.submit');
-    Route::get('/riwayat',  [MahasiswaController::class, 'riwayat'])->name('mahasiswa.riwayat');
+Route::controller(AuthController::class)->group(function () {
+    Route::get('/login', 'showLogin')->name('login');
+    Route::post('/login', 'login')->name('login.post');
+    Route::post('/logout', 'logout')->name('logout');
 });
 
-// ── ADMIN (Auth-based) ──
-Route::prefix('admin')->middleware('auth')->group(function () {
-    Route::get('/dashboard',                    [AdminController::class, 'dashboard'])->name('admin.dashboard');
+// ── MAHASISWA ──
+Route::prefix('mahasiswa')
+    ->middleware(['auth', 'role:mahasiswa'])
+    ->controller(MahasiswaController::class)
+    ->group(function () {
 
-    // Alat
-    Route::get('/alat',  [AdminController::class, 'alatIndex'])->name('admin.alat.index');
-    Route::post('/alat',   [AdminController::class, 'alatStore'])->name('admin.alat.store');
-    Route::put('/alat/{id}',  [AdminController::class, 'alatUpdate'])->name('admin.alat.update');
-    Route::delete('/alat/{id}', [AdminController::class, 'alatDestroy'])->name('admin.alat.destroy');
+        Route::get('/dashboard', 'dashboard')->name('mahasiswa.dashboard');
 
-    // Peminjaman
-    Route::get('/peminjaman',   [AdminController::class, 'peminjamanIndex'])->name('admin.peminjaman.index');
-    Route::patch('/peminjaman/{id}/setujui', [AdminController::class, 'peminjamanSetujui'])->name('admin.peminjaman.setujui');
-    Route::patch('/peminjaman/{id}/tolak',    [AdminController::class, 'peminjamanTolak'])->name('admin.peminjaman.tolak');
-    Route::patch('/peminjaman/{id}/kembalikan', [AdminController::class, 'peminjamanKembalikan'])->name('admin.peminjaman.kembalikan');
+        Route::get('/keranjang', 'keranjang')->name('mahasiswa.keranjang');
+        Route::post('/keranjang/tambah', 'tambahKeranjang')->name('mahasiswa.keranjang.tambah');
+        Route::post('/keranjang/hapus', 'hapusKeranjang')->name('mahasiswa.keranjang.hapus');
 
-    // Laporan
-    Route::get('/laporan/cetak',[AdminController::class, 'cetakLaporan'])->name('admin.laporan.cetak');
+        Route::post('/pinjam/submit', 'submitPinjam')->name('mahasiswa.pinjam.submit');
 
-    // Mahasiswa
-    Route::get('/mahasiswa',  [AdminController::class, 'mahasiswaIndex'])->name('admin.mahasiswa.index');
-    Route::post('/mahasiswa', [AdminController::class, 'mahasiswaStore'])->name('admin.mahasiswa.store');
-    Route::put('/mahasiswa/{id}',   [AdminController::class, 'mahasiswaUpdate'])->name('admin.mahasiswa.update');
-    Route::delete('/mahasiswa/{id}', [AdminController::class, 'mahasiswaDestroy'])->name('admin.mahasiswa.destroy');
-});
+        Route::get('/riwayat', 'riwayat')->name('mahasiswa.riwayat');
+    });
+
+// ── ADMIN ──
+Route::prefix('admin')
+    ->middleware(['auth', 'role:admin'])
+    ->controller(AdminController::class)
+    ->group(function () {
+
+        Route::get('/dashboard', 'dashboard')->name('admin.dashboard');
+
+        // alat
+        Route::get('/alat', 'alatIndex')->name('admin.alat.index');
+        Route::post('/alat', 'alatStore')->name('admin.alat.store');
+        Route::put('/alat/{id}', 'alatUpdate')->name('admin.alat.update');
+        Route::delete('/alat/{id}', 'alatDestroy')->name('admin.alat.destroy');
+
+        // peminjaman
+        Route::get('/peminjaman', 'peminjamanIndex')->name('admin.peminjaman.index');
+        Route::patch('/peminjaman/{id}/setujui', 'peminjamanSetujui')->name('admin.peminjaman.setujui');
+        Route::patch('/peminjaman/{id}/tolak', 'peminjamanTolak')->name('admin.peminjaman.tolak');
+        Route::patch('/peminjaman/{id}/kembalikan', 'peminjamanKembalikan')->name('admin.peminjaman.kembalikan');
+
+        // laporan
+        Route::get('/laporan/cetak', 'cetakLaporan')->name('admin.laporan.cetak');
+
+        // user (mahasiswa)
+        Route::get('/mahasiswa', 'mahasiswaIndex')->name('admin.mahasiswa.index');
+        Route::post('/mahasiswa', 'mahasiswaStore')->name('admin.mahasiswa.store');
+        Route::put('/mahasiswa/{id}', 'mahasiswaUpdate')->name('admin.mahasiswa.update');
+        Route::delete('/mahasiswa/{id}', 'mahasiswaDestroy')->name('admin.mahasiswa.destroy');
+
+        Route::get('/admin-list', 'adminIndex')->name('admin.list');
+        Route::post('/admin-list', 'adminStore')->name('admin.store');
+        Route::delete('/admin-list/{id}', 'adminDestroy')->name('admin.destroy');
+
+        Route::get('/admin/mahasiswa/search', [AdminController::class, 'mahasiswaSearch'])
+            ->name('admin.mahasiswa.search');
+    });

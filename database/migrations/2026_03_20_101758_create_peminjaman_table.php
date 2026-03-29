@@ -10,7 +10,7 @@ return new class extends Migration
     {
         Schema::create('peminjaman', function (Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger('mahasiswa_id');
+            $table->unsignedBigInteger('user_id');
             $table->date('tanggal_pinjam');
             $table->date('tanggal_kembali');
             $table->enum('status', ['menunggu', 'disetujui', 'dikembalikan', 'ditolak'])->default('menunggu');

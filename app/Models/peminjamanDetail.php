@@ -9,7 +9,7 @@ class PeminjamanDetail extends Model
 {
     use HasFactory;
 
-    protected $table = 'peminjamandetail';
+    protected $table = 'peminjaman_detail';
 
     protected $fillable = [
         'peminjaman_id',

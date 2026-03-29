@@ -20,10 +20,9 @@
                 <tr>
                     <th>No</th>
                     <th>Nama Mahasiswa</th>
-                    <th>Jurusan</th>
                     <th>Alat Dipinjam</th>
-                    <th>Tgl Pinjam</th>
-                    <th>Tgl Kembali</th>
+                    <th>Tanggal Pinjam</th>
+                    <th>Tanggal Kembali</th>
                     <th>Status</th>
                     <th>Aksi</th>
                 </tr>
@@ -32,11 +31,7 @@
                 @forelse($peminjaman as $index => $item)
                 <tr>
                     <td>{{ $index + 1 }}</td>
-                    <td style="font-weight:600;">{{ $item->mahasiswa->nama ?? '-' }}</td>
-                    <td>
-                        <span style="background:#f0f2f5; padding:2px 8px; border-radius:4px; font-size:12px;">
-                            {{ $item->mahasiswa->jurusan ?? '-' }}
-                        </span>
+                    <td style="font-weight:600;">{{ $item->user->nama ?? '-' }}</td>
                     </td>
                     <td>
                         @foreach($item->details as $detail)
